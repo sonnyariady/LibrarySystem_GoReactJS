@@ -1,33 +1,44 @@
 package models
 
-import (
-	"gorm.io/gorm"
-)
+import "gorm.io/gorm"
 
-// Book represents a book model
+// Book represents a book in the library
 type Book struct {
-	ID          uint   `gorm:"primaryKey"`
-	Title       string `gorm:"size:255;not null"`
-	Author      string `gorm:"size:255;not null"`
-	ISBN        string `gorm:"size:13;unique;not null"`
-	Loans       []Loan `gorm:"foreignKey:BookID;constraint:OnDelete:CASCADE"`
+    gorm.Model
+    Title       string `json:"title" gorm:"unique"`
+    Author      string `json:"author"`
+    ISBN        string `json:"isbn" gorm:"unique"`
+    PublishedAt string `json:"published_at"`
 }
 
-// Member represents a library member model
+// Member represents a library member
 type Member struct {
-	ID         uint   `gorm:"primaryKey"`
-	Name       string `gorm:"size:255;not null"`
-	Email      string `gorm:"size:255;unique;not null"`
-	Loans      []Loan `gorm:"foreignKey:MemberID;constraint:OnDelete:CASCADE"`
+    gorm.Model
+    Name      string `json:"name"`
+    Email     string `json:"email" gorm:"unique"`
+    CreatedAt time.Time `json:"created_at"`
 }
 
-// Loan represents a loan model
+// Loan represents a loan record
 type Loan struct {
-	ID       uint      `gorm:"primaryKey"`
-	BookID   uint      `gorm:"not null"`
-	MemberID uint      `gorm:"not null"`
-	LoanDate string     `gorm:"not null"`
-	ReturnDate *string  `gorm:"null"`
-	Book     Book      `gorm:"foreignKey:BookID"`
-	Member   Member    `gorm:"foreignKey:MemberID"`
+    gorm.Model
+    BookID  uint   `json:"book_id" gorm:"not null"`
+    MemberID uint   `json:"member_id" gorm:"not null"`
+    LoanedAt time.Time `json:"loaned_at"`
+    ReturnedAt *time.Time `json:"returned_at,omitempty"`
+}
+
+// PaginationResponse is used for paginated responses
+type PaginationResponse struct {
+    Total     int         `json:"total"`
+    PerPage   int         `json:"per_page"`
+    CurrentPage int       `json:"current_page"`
+    Data      interface{} `json:"data"`
+}
+
+// APIResponse is a standard response format
+type APIResponse struct {
+    Status  string      `json:"status"`
+    Message string      `json:"message"`
+    Data    interface{} `json:"data,omitempty"`
 }
